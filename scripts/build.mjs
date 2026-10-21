@@ -1,12 +1,5 @@
-import { build } from "esbuild";
+import { copyFile, mkdir } from "node:fs/promises";
 
-await build({
-  entryPoints: ["src/identity.js"],
-  bundle: true,
-  platform: "browser",
-  format: "iife",
-  target: ["es2022"],
-  outfile: "dist/gestao/identity.bundle.js",
-  sourcemap: false,
-  minify: true
-});
+await mkdir("dist/gestao", { recursive: true });
+await copyFile("src/supabase-config.js", "dist/supabase-config.js");
+await copyFile("src/supabase-auth.js", "dist/gestao/supabase-auth.js");

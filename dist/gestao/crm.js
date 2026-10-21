@@ -8,7 +8,6 @@
   var cachedXlsx = null;
   var refreshTimer = null;
   var refreshInProgress = false;
-  var pendingInviteToken = "";
 
   var $ = function (selector) { return document.querySelector(selector); };
   var $$ = function (selector) { return Array.prototype.slice.call(document.querySelectorAll(selector)); };
@@ -55,12 +54,41 @@
     return normalized;
   }
 
-  async function apiRequest(url, options) {
-    var response = await fetch(url, Object.assign({ credentials: "same-origin" }, options || {}));
+  async function apiRequest(path, options) {
+    var config = window.exclusiveSolarioConfig || {};
+    if (!config.url || !config.publishableKey) throw new Error("A ligação ao Supabase ainda não está configurada.");
+    var settings = options || {};
+    var token = await window.solarioIdentity.getAccessToken();
+    var headers = Object.assign({
+      apikey: config.publishableKey,
+      Authorization: "Bearer " + token,
+      Accept: "application/json"
+    }, settings.headers || {});
+    if (settings.body !== undefined && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
+    var response = await fetch(config.url.replace(/\/$/, "") + "/rest/v1/solario_crm_records" + (path || ""), {
+      method: settings.method || "GET",
+      headers: headers,
+      body: settings.body
+    });
     var result = {};
     try { result = await response.json(); } catch (error) { result = {}; }
-    if (!response.ok) throw new Error(result.error || "Não foi possível comunicar com o CRM.");
+    if (!response.ok) {
+      var message = result.message || result.details || result.hint || "Não foi possível comunicar com o CRM.";
+      throw new Error(message);
+    }
     return result;
+  }
+
+  async function loadRecords() {
+    var params = new URLSearchParams({ select: "id,type,payload", order: "created_at.asc" });
+    var rows = await apiRequest("?" + params.toString(), { method: "GET" });
+    var loaded = { clients: [], visits: [], followUps: [], sales: [] };
+    (Array.isArray(rows) ? rows : []).forEach(function (row) {
+      if (TYPES.indexOf(row.type) >= 0 && row.payload && typeof row.payload === "object") {
+        loaded[row.type].push(row.payload);
+      }
+    });
+    return normalizeRecords(loaded);
   }
 
   function collectOperations(before, after) {
@@ -103,12 +131,41 @@
   async function saveRecords() {
     var operations = collectOperations(serverBaseline, records);
     if (!operations.length) return;
-    var result = await apiRequest("/api/crm", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ operations: operations })
-    });
-    records = normalizeRecords(result.records);
+    var upserts = operations.filter(function (operation) { return operation.action === "upsert"; });
+    for (var start = 0; start < upserts.length; start += 100) {
+      var rows = upserts.slice(start, start + 100).map(function (operation) {
+        var now = new Date().toISOString();
+        return {
+          id: operation.record.id,
+          type: operation.type,
+          payload: operation.record,
+          created_at: operation.record.createdAt || now,
+          updated_at: operation.record.updatedAt || now
+        };
+      });
+      await apiRequest("?on_conflict=id", {
+        method: "POST",
+        headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify(rows)
+      });
+    }
+    var deletions = operations.filter(function (operation) { return operation.action === "delete"; });
+    for (var typeIndex = 0; typeIndex < TYPES.length; typeIndex += 1) {
+      var type = TYPES[typeIndex];
+      var ids = deletions.filter(function (operation) { return operation.type === type; }).map(function (operation) { return operation.id; });
+      for (var start = 0; start < ids.length; start += 100) {
+        var chunk = ids.slice(start, start + 100);
+        if (!chunk.length) continue;
+        var query = new URLSearchParams();
+        query.set("type", "eq." + type);
+        query.set("id", "in.(" + chunk.map(function (id) { return '"' + id + '"'; }).join(",") + ")");
+        await apiRequest("?" + query.toString(), {
+          method: "DELETE",
+          headers: { Prefer: "return=minimal" }
+        });
+      }
+    }
+    records = await loadRecords();
     serverBaseline = cloneRecords(records);
   }
 
@@ -137,8 +194,7 @@
   }
 
   async function openApp(user) {
-    var response = await apiRequest("/api/crm", { method: "GET" });
-    records = normalizeRecords(response.records);
+    records = await loadRecords();
     serverBaseline = cloneRecords(records);
     $("#authScreen").classList.add("hidden");
     $("#app").classList.remove("hidden");
@@ -155,9 +211,8 @@
     if (refreshInProgress || $("#app").classList.contains("hidden") || !navigator.onLine) return;
     refreshInProgress = true;
     try {
-      var response = await apiRequest("/api/crm", { method: "GET" });
       var localChanges = collectOperations(serverBaseline, records);
-      serverBaseline = normalizeRecords(response.records);
+      serverBaseline = await loadRecords();
       records = applyOperations(serverBaseline, localChanges);
       renderAll();
     } catch (error) {
@@ -839,29 +894,6 @@
       }
     });
 
-    $("#inviteForm").addEventListener("submit", async function (event) {
-      event.preventDefault();
-      showAuthMessage("");
-      var password = $("#invitePassword").value;
-      if (password.length < 12) {
-        showAuthMessage("Escolhe uma palavra-passe com pelo menos 12 caracteres.");
-        return;
-      }
-      if (password !== $("#inviteRepeat").value) {
-        showAuthMessage("As palavras-passe não coincidem.");
-        return;
-      }
-      try {
-        var user = await window.solarioIdentity.acceptInvite(pendingInviteToken, password);
-        pendingInviteToken = "";
-        await openApp(user);
-      } catch (error) {
-        showAuthMessage(error.message || "Não foi possível ativar a conta. Pede um novo convite ao administrador.");
-      }
-      $("#invitePassword").value = "";
-      $("#inviteRepeat").value = "";
-    });
-
     $("#recoveryForm").addEventListener("submit", async function (event) {
       event.preventDefault();
       showAuthMessage("");
@@ -1164,12 +1196,6 @@
     });
     try {
       var callback = await window.solarioIdentity.handleAuthCallback();
-      if (callback && callback.type === "invite" && callback.token) {
-        pendingInviteToken = callback.token;
-        showPanel("invite");
-        $("#invitePassword").focus();
-        return;
-      }
       if (callback && callback.type === "recovery") {
         showPanel("recovery");
         $("#recoveryPassword").focus();

@@ -1,4 +1,4 @@
-var CACHE_NAME = "exclusive-solario-2026-10-crm3";
+var CACHE_NAME = "exclusive-solario-2026-10-crm4";
 var APP_FILES = [
   "/",
   "/index.html",
@@ -15,7 +15,8 @@ var APP_FILES = [
   "/gestao/index.html",
   "/gestao/crm.css",
   "/gestao/crm.js",
-  "/gestao/identity.bundle.js",
+  "/supabase-config.js",
+  "/gestao/supabase-auth.js",
   "/privacidade/"
 ];
 

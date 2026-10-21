@@ -24,33 +24,21 @@
       <section id="loginPanel" class="vault-panel auth-panel hidden">
         <span class="vault-kicker">EXCLUSIVE SOLARIO · ADMINISTRAÇÃO</span>
         <h1>A tua gestão,<br><em>num só lugar.</em></h1>
-        <p>Entra para consultar clientes, pedidos do site, visitas e acompanhamentos. Os registos ficam sincronizados entre dispositivos.</p>
+        <p>Entra para consultar clientes, pedidos do site, visitas e acompanhamentos. O acesso usa a conta autorizada no Auth partilhado com o SD Dialer.</p>
         <form id="loginForm" class="vault-form">
           <label for="loginEmail">Email</label>
-          <input id="loginEmail" type="email" autocomplete="username" required>
+          <input id="loginEmail" type="email" value="Alex@exclusivesolario.pt" autocomplete="username" required>
           <label for="loginPassword">Palavra-passe</label>
           <input id="loginPassword" type="password" autocomplete="current-password" required>
           <button class="crm-button crm-button-gold" type="submit">Entrar na gestão <span>→</span></button>
         </form>
         <button id="forgotPasswordButton" class="vault-text-button" type="button">Esqueci-me da palavra-passe</button>
-        <p class="vault-note">O acesso é apenas por convite. Pede ao administrador para ativar a tua conta.</p>
-      </section>
-      <section id="invitePanel" class="vault-panel auth-panel hidden">
-        <span class="vault-kicker">EXCLUSIVE SOLARIO · PRIMEIRO ACESSO</span>
-        <h1>Define o teu<br><em>acesso seguro.</em></h1>
-        <p>Escolhe uma palavra-passe para a tua conta de gestão.</p>
-        <form id="inviteForm" class="vault-form">
-          <label for="invitePassword">Palavra-passe <span>mínimo 12 caracteres</span></label>
-          <input id="invitePassword" type="password" autocomplete="new-password" minlength="12" required>
-          <label for="inviteRepeat">Confirma a palavra-passe</label>
-          <input id="inviteRepeat" type="password" autocomplete="new-password" minlength="12" required>
-          <button class="crm-button crm-button-gold" type="submit">Ativar acesso <span>→</span></button>
-        </form>
+        <p class="vault-note">O administrador adiciona esta conta no Supabase Auth do projeto Indigo. Não existe registo público.</p>
       </section>
       <section id="recoveryPanel" class="vault-panel auth-panel hidden">
         <span class="vault-kicker">EXCLUSIVE SOLARIO · SEGURANÇA</span>
         <h1>Nova palavra-<br><em>passe.</em></h1>
-        <p>Define uma nova palavra-passe para aceder à gestão.</p>
+        <p>Define uma nova palavra-passe para aceder à gestão. A recuperação precisa de acesso à caixa de correio da conta.</p>
         <form id="recoveryForm" class="vault-form">
           <label for="recoveryPassword">Nova palavra-passe <span>mínimo 12 caracteres</span></label>
           <input id="recoveryPassword" type="password" autocomplete="new-password" minlength="12" required>
@@ -256,7 +244,8 @@
 
   <input id="importFile" type="file" class="visually-hidden" accept=".xlsx,.xls,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="/gestao/identity.bundle.js" defer></script>
+  <script src="/supabase-config.js" defer></script>
+  <script src="/gestao/supabase-auth.js" defer></script>
   <script src="/gestao/crm.js" defer></script>
 </body>
 </html>

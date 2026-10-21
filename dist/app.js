@@ -75,17 +75,39 @@
       if (submitButton) submitButton.disabled = true;
       contactFeedback.classList.remove("is-error");
       contactFeedback.textContent = "A enviar o teu pedido…";
-      fetch("/api/leads", {
+      if (payload.website) {
+        contactForm.reset();
+        contactFeedback.textContent = "Pedido recebido. A equipa Exclusive Solario entrará em contacto contigo.";
+        if (submitButton) submitButton.disabled = false;
+        return;
+      }
+      var config = window.exclusiveSolarioConfig || {};
+      var now = new Date().toISOString();
+      var leadId = "lead-" + (window.crypto && window.crypto.randomUUID
+        ? window.crypto.randomUUID()
+        : Date.now().toString(36) + Math.random().toString(36).slice(2));
+      var lead = {
+        id: leadId,
+        number: "",
+        name: String(payload.name || "").trim().slice(0, 100),
+        phone: String(payload.phone || "").trim().slice(0, 30),
+        status: "interested",
+        source: "Site",
+        notes: "",
+        consentAt: payload.consent ? now : "",
+        createdAt: now,
+        updatedAt: now
+      };
+      fetch(config.url + "/rest/v1/solario_crm_records", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        credentials: "same-origin"
+        headers: {
+          apikey: config.publishableKey,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify([{ id: leadId, type: "clients", payload: lead }])
       }).then(function (response) {
-        if (!response.ok) {
-          return response.json().then(function (result) {
-            throw new Error(result.error || "O pedido não ficou registado.");
-          });
-        }
+        if (!response.ok) throw new Error("O pedido não ficou registado.");
         contactForm.reset();
         contactFeedback.textContent = "Pedido recebido. A equipa Exclusive Solario entrará em contacto contigo.";
       }).catch(function () {
