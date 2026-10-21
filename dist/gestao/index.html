@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#150e20">
+  <meta name="description" content="Área de gestão da Exclusive Solario. Clientes, visitas, acompanhamentos, vendas e fidelizações num só lugar.">
+  <title>Gestão de clientes — Exclusive Solario</title>
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/gestao/crm.css">
+</head>
+<body class="crm-body">
+  <div id="authScreen" class="vault-screen">
+    <div class="vault-card">
+      <a class="vault-brand" href="/" aria-label="Voltar ao site">
+        <img src="/assets/mark.svg" width="46" height="46" alt="">
+        <span><strong>EXCLUSIVE</strong><small>SOLARIO · GESTÃO</small></span>
+      </a>
+      <div class="vault-rule"></div>
+      <section id="loginPanel" class="vault-panel auth-panel hidden">
+        <span class="vault-kicker">EXCLUSIVE SOLARIO · ADMINISTRAÇÃO</span>
+        <h1>A tua gestão,<br><em>num só lugar.</em></h1>
+        <p>Entra para consultar clientes, pedidos do site, visitas e acompanhamentos. Os registos ficam sincronizados entre dispositivos.</p>
+        <form id="loginForm" class="vault-form">
+          <label for="loginEmail">Email</label>
+          <input id="loginEmail" type="email" autocomplete="username" required>
+          <label for="loginPassword">Palavra-passe</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+          <button class="crm-button crm-button-gold" type="submit">Entrar na gestão <span>→</span></button>
+        </form>
+        <button id="forgotPasswordButton" class="vault-text-button" type="button">Esqueci-me da palavra-passe</button>
+        <p class="vault-note">O acesso é apenas por convite. Pede ao administrador para ativar a tua conta.</p>
+      </section>
+      <section id="invitePanel" class="vault-panel auth-panel hidden">
+        <span class="vault-kicker">EXCLUSIVE SOLARIO · PRIMEIRO ACESSO</span>
+        <h1>Define o teu<br><em>acesso seguro.</em></h1>
+        <p>Escolhe uma palavra-passe para a tua conta de gestão.</p>
+        <form id="inviteForm" class="vault-form">
+          <label for="invitePassword">Palavra-passe <span>mínimo 12 caracteres</span></label>
+          <input id="invitePassword" type="password" autocomplete="new-password" minlength="12" required>
+          <label for="inviteRepeat">Confirma a palavra-passe</label>
+          <input id="inviteRepeat" type="password" autocomplete="new-password" minlength="12" required>
+          <button class="crm-button crm-button-gold" type="submit">Ativar acesso <span>→</span></button>
+        </form>
+      </section>
+      <section id="recoveryPanel" class="vault-panel auth-panel hidden">
+        <span class="vault-kicker">EXCLUSIVE SOLARIO · SEGURANÇA</span>
+        <h1>Nova palavra-<br><em>passe.</em></h1>
+        <p>Define uma nova palavra-passe para aceder à gestão.</p>
+        <form id="recoveryForm" class="vault-form">
+          <label for="recoveryPassword">Nova palavra-passe <span>mínimo 12 caracteres</span></label>
+          <input id="recoveryPassword" type="password" autocomplete="new-password" minlength="12" required>
+          <label for="recoveryRepeat">Confirma a palavra-passe</label>
+          <input id="recoveryRepeat" type="password" autocomplete="new-password" minlength="12" required>
+          <button class="crm-button crm-button-gold" type="submit">Guardar palavra-passe <span>→</span></button>
+        </form>
+      </section>
+      <div id="authError" class="vault-error" role="alert" aria-live="polite"></div>
+      <div class="vault-foot"><span class="lock-mark" aria-hidden="true">⌑</span> Acesso protegido <span class="vault-separator">·</span> <a href="/">Voltar ao site</a></div>
+    </div>
+  </div>
+
+  <div id="app" class="crm-app hidden">
+    <aside class="sidebar" id="sidebar">
+      <a class="sidebar-brand" href="/" aria-label="Exclusive Solario">
+        <img src="/assets/mark.svg" width="42" height="42" alt="">
+        <span><strong>EXCLUSIVE</strong><small>SOLARIO</small></span>
+      </a>
+      <div class="sidebar-label">ESPAÇO DE TRABALHO</div>
+      <nav class="sidebar-nav" aria-label="Gestão">
+        <button class="nav-item is-active" type="button" data-view="dashboard"><span class="nav-icon">◫</span> Visão geral</button>
+        <button class="nav-item" type="button" data-view="clients"><span class="nav-icon">♙</span> Clientes <span class="nav-count" id="navClientCount">0</span></button>
+        <button class="nav-item" type="button" data-view="followups"><span class="nav-icon">◷</span> Acompanhamentos <span class="nav-count" id="navFollowUpCount">0</span></button>
+        <button class="nav-item" type="button" data-view="sales"><span class="nav-icon">◇</span> Vendas <span class="nav-count" id="navSalesCount">0</span></button>
+        <button class="nav-item" type="button" data-view="visits"><span class="nav-icon">◷</span> Visitas</button>
+        <button class="nav-item" type="button" data-view="loyalty"><span class="nav-icon">✳</span> Fidelizações <span class="nav-count" id="navLoyaltyCount">0</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="device-note"><span class="device-dot"></span><span><strong>CRM online</strong><small>Dados sincronizados</small></span></div>
+        <a class="sidebar-site-link" href="/">← Voltar ao site</a>
+        <button class="sidebar-lock" id="logoutButton" type="button"><span>⌑</span> Terminar sessão</button>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
+        <div class="breadcrumb"><span>EXCLUSIVE SOLARIO</span><b>/</b><strong id="breadcrumbName">Visão geral</strong></div>
+        <div class="topbar-actions">
+          <button class="icon-button" id="backupButton" type="button" title="Exportar cópia de segurança" aria-label="Exportar cópia de segurança">↓</button>
+          <div class="admin-chip"><span class="admin-avatar" id="adminAvatar">A</span><span><strong id="adminName">Administração</strong><small id="adminEmail">Sessão privada</small></span></div>
+        </div>
+      </header>
+
+      <div id="notice" class="notice hidden" role="status" aria-live="polite"></div>
+      <main class="crm-main">
+        <section class="view-panel" id="dashboardView">
+          <div class="page-heading">
+            <div><span class="page-kicker">O TEU ESPAÇO DE GESTÃO</span><h1>Visão geral<span class="heading-period">.</span></h1><p class="page-subtitle">Acompanha clientes, visitas, contactos e vendas da Exclusive Solario.</p></div>
+            <button class="crm-button crm-button-gold" id="addClientTop" type="button"><span class="plus-sign">＋</span> Novo cliente</button>
+          </div>
+          <div class="stat-grid">
+            <article class="stat-card"><span class="stat-label">CLIENTES REGISTADOS</span><div class="stat-value" id="statClients">0</div><div class="stat-foot"><span class="stat-dot"></span> Registos da tua agenda</div><span class="stat-ornament">♙</span></article>
+            <article class="stat-card"><span class="stat-label">VISITAS ESTE MÊS</span><div class="stat-value" id="statVisits">0</div><div class="stat-foot"><span class="stat-dot"></span> Registadas neste mês</div><span class="stat-ornament">◷</span></article>
+            <article class="stat-card"><span class="stat-label">ACOMPANHAMENTOS POR FAZER</span><div class="stat-value" id="statFollowups">0</div><div class="stat-foot"><span class="stat-dot"></span> Contactos e renovações</div><span class="stat-ornament">◷</span></article>
+            <article class="stat-card"><span class="stat-label">VENDAS ESTE MÊS</span><div class="stat-value" id="statSales">0</div><div class="stat-foot"><span class="stat-dot"></span> Registos sem cancelamentos</div><span class="stat-ornament">◇</span></article>
+          </div>
+          <div class="content-grid">
+            <section class="panel recent-panel">
+              <div class="panel-heading"><div><span class="panel-kicker">AGENDA</span><h2>Clientes recentes</h2></div><button class="subtle-link" type="button" data-goto="clients">Ver todos <span>→</span></button></div>
+              <div id="recentClients" class="recent-list"></div>
+            </section>
+            <section class="panel quick-panel">
+              <div class="panel-heading"><div><span class="panel-kicker">ATALHOS</span><h2>O que precisas?</h2></div></div>
+              <button class="quick-action" type="button" id="quickAdd"><span class="quick-icon">＋</span><span><strong>Registar cliente</strong><small>Adicionar alguém à tua agenda</small></span><b>→</b></button>
+              <button class="quick-action" type="button" id="quickVisit"><span class="quick-icon">◷</span><span><strong>Registar visita</strong><small>Anotar uma visita de cliente</small></span><b>→</b></button>
+              <button class="quick-action" type="button" id="quickFollowUp"><span class="quick-icon">⌁</span><span><strong>Agendar acompanhamento</strong><small>Marcar um contacto ou renovação</small></span><b>→</b></button>
+              <button class="quick-action" type="button" id="quickSale"><span class="quick-icon">◇</span><span><strong>Registar venda</strong><small>Adicionar sessão, pacote ou produto</small></span><b>→</b></button>
+              <button class="quick-action" type="button" id="quickImport"><span class="quick-icon">⇧</span><span><strong>Importar folha Excel</strong><small>Carregar uma lista de clientes</small></span><b>→</b></button>
+              <div class="privacy-tip"><span class="tip-icon">✧</span><span><strong>A tua informação, no teu controlo.</strong><small>Os clientes, pedidos do site, visitas e acompanhamentos ficam sincronizados na base de dados online.</small></span></div>
+            </section>
+          </div>
+          <section class="import-strip"><div class="import-mark">✧</div><div><strong>Pedidos do site, diretamente na agenda</strong><p>Os novos contactos entram automaticamente em Clientes com o estado “Interessado”.</p></div><button class="crm-button crm-button-outline" id="refreshButton" type="button">Atualizar agora <span>↻</span></button></section>
+        </section>
+
+        <section class="view-panel hidden" id="clientsView">
+          <div class="page-heading">
+            <div><span class="page-kicker">A TUA AGENDA</span><h1>Clientes<span class="heading-period">.</span></h1><p class="page-subtitle">Uma ficha simples para cada pessoa que acompanha a Exclusive Solario.</p></div>
+            <button class="crm-button crm-button-gold" id="addClientList" type="button"><span class="plus-sign">＋</span> Novo cliente</button>
+          </div>
+          <section class="panel client-table-panel">
+            <div class="table-toolbar"><div class="table-title"><strong id="clientListCount">0 clientes</strong><span>Registos sincronizados com a base de dados online.</span></div><div class="toolbar-filters"><select id="clientStatusFilter" class="filter-select" aria-label="Filtrar clientes por estado"><option value="all">Todos os estados</option><option value="interested">Interessados</option><option value="active">Clientes ativos</option><option value="inactive">Inativos</option></select><label class="search-box"><span>⌕</span><input id="clientSearch" type="search" placeholder="Pesquisar nome, número ou telemóvel" autocomplete="off"><kbd>/</kbd></label></div></div>
+            <div class="table-scroll"><table class="client-table"><thead><tr><th>N.º CLIENTE</th><th>NOME</th><th>ESTADO</th><th>TELEMÓVEL</th><th>VISITAS</th><th>ÚLTIMA VISITA</th><th></th></tr></thead><tbody id="clientRows"></tbody></table></div>
+            <div id="clientEmpty" class="empty-state hidden"><div class="empty-art"><span>♙</span><i></i></div><h3>A tua agenda começa aqui.</h3><p>Adiciona um cliente ou importa a folha Excel para começares a acompanhar os registos.</p><div><button class="crm-button crm-button-gold" id="emptyAddClient" type="button">Registar primeiro cliente <span>→</span></button><button class="crm-button crm-button-outline" id="emptyImport" type="button">Importar folha Excel</button></div></div>
+          </section>
+        </section>
+
+        <section class="view-panel hidden" id="visitsView">
+          <div class="page-heading">
+            <div><span class="page-kicker">HISTÓRICO</span><h1>Visitas<span class="heading-period">.</span></h1><p class="page-subtitle">Consulta as visitas registadas na tua agenda.</p></div>
+            <button class="crm-button crm-button-gold" id="addVisitTop" type="button"><span class="plus-sign">＋</span> Registar visita</button>
+          </div>
+          <section class="panel visits-panel">
+            <div class="panel-heading"><div><span class="panel-kicker">TODOS OS REGISTOS</span><h2>Histórico de visitas</h2></div><span class="table-total" id="visitListCount">0 visitas</span></div>
+            <div id="visitRows" class="visit-list"></div>
+          </section>
+        </section>
+
+        <section class="view-panel hidden" id="followupsView">
+          <div class="page-heading">
+            <div><span class="page-kicker">AGENDA EXCLUSIVE</span><h1>Acompanhamentos<span class="heading-period">.</span></h1><p class="page-subtitle">Organiza contactos, primeiras visitas e datas de renovação.</p></div>
+            <button class="crm-button crm-button-gold" id="addFollowUpTop" type="button"><span class="plus-sign">＋</span> Novo acompanhamento</button>
+          </div>
+          <section class="panel data-panel">
+            <div class="table-toolbar"><div class="table-title"><strong id="followUpListCount">0 acompanhamentos</strong><span>Lembretes sincronizados com a base de dados online.</span></div><div class="toolbar-filters"><select id="followUpFilter" class="filter-select" aria-label="Filtrar acompanhamentos"><option value="open">Por fazer</option><option value="all">Todos</option><option value="done">Concluídos</option></select><label class="search-box"><span>⌕</span><input id="followUpSearch" type="search" placeholder="Pesquisar cliente ou nota" autocomplete="off"></label></div></div>
+            <div id="followUpRows" class="followup-list"></div>
+            <div id="followUpEmpty" class="empty-state hidden"><div class="empty-art"><span>◷</span><i></i></div><h3>Agenda em dia.</h3><p>Cria um lembrete para retomar contacto, preparar uma primeira visita ou acompanhar uma renovação.</p><div><button class="crm-button crm-button-gold" id="emptyAddFollowUp" type="button">Agendar acompanhamento <span>→</span></button></div></div>
+          </section>
+        </section>
+
+        <section class="view-panel hidden" id="salesView">
+          <div class="page-heading">
+            <div><span class="page-kicker">MOVIMENTO DO ESPAÇO</span><h1>Vendas<span class="heading-period">.</span></h1><p class="page-subtitle">Regista sessões, pacotes ou produtos sem valores pré-definidos.</p></div>
+            <button class="crm-button crm-button-gold" id="addSaleTop" type="button"><span class="plus-sign">＋</span> Registar venda</button>
+          </div>
+          <section class="panel client-table-panel">
+            <div class="table-toolbar"><div class="table-title"><strong id="saleListCount">0 vendas</strong><span id="salesSummary">Registos sincronizados com a base de dados online.</span></div><div class="toolbar-filters"><select id="saleStatusFilter" class="filter-select" aria-label="Filtrar vendas"><option value="all">Todos os estados</option><option value="pending">Pendentes</option><option value="paid">Pagas</option><option value="cancelled">Canceladas</option></select><label class="search-box"><span>⌕</span><input id="saleSearch" type="search" placeholder="Pesquisar cliente ou item" autocomplete="off"></label></div></div>
+            <div class="table-scroll"><table class="client-table sales-table"><thead><tr><th>DATA</th><th>CLIENTE</th><th>SESSÃO / PACOTE / PRODUTO</th><th>VALOR</th><th>ESTADO</th><th>RENOVAÇÃO</th><th></th></tr></thead><tbody id="saleRows"></tbody></table></div>
+            <div id="saleEmpty" class="empty-state hidden"><div class="empty-art"><span>◇</span><i></i></div><h3>Ainda sem vendas registadas.</h3><p>Guarda sessões, pacotes ou produtos com o valor e o estado que o negócio definir.</p><div><button class="crm-button crm-button-gold" id="emptyAddSale" type="button">Registar primeira venda <span>→</span></button></div></div>
+          </section>
+        </section>
+
+        <section class="view-panel hidden" id="loyaltyView">
+          <div class="page-heading">
+            <div><span class="page-kicker">RELAÇÃO COM CLIENTES</span><h1>Fidelizações<span class="heading-period">.</span></h1><p class="page-subtitle">Acompanha as datas de renovação registadas nas vendas.</p></div>
+            <button class="crm-button crm-button-outline" id="loyaltyAddSale" type="button">Registar venda <span>→</span></button>
+          </div>
+          <section class="panel client-table-panel">
+            <div class="table-toolbar"><div class="table-title"><strong id="loyaltyListCount">0 datas de renovação</strong><span>O estado é calculado a partir da data registada.</span></div><div class="toolbar-filters"><select id="loyaltyFilter" class="filter-select" aria-label="Filtrar renovações"><option value="all">Todas</option><option value="active">Em dia</option><option value="due">A terminar (30 dias)</option><option value="expired">Expiradas</option></select></div></div>
+            <div class="table-scroll"><table class="client-table loyalty-table"><thead><tr><th>CLIENTE</th><th>SESSÃO / PACOTE / PRODUTO</th><th>RENOVAÇÃO</th><th>ESTADO</th><th></th></tr></thead><tbody id="loyaltyRows"></tbody></table></div>
+            <div id="loyaltyEmpty" class="empty-state hidden"><div class="empty-art"><span>✳</span><i></i></div><h3>Sem renovações agendadas.</h3><p>Regista a data de renovação numa venda para a acompanhar aqui.</p><div><button class="crm-button crm-button-outline" id="emptyLoyaltySale" type="button">Ver vendas <span>→</span></button></div></div>
+          </section>
+        </section>
+      </main>
+      <footer class="crm-footer"><span>EXCLUSIVE SOLARIO <b>·</b> GESTÃO DE CLIENTES</span><span><i></i> Base de dados online · Acesso protegido</span></footer>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="clientModal" role="presentation">
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="clientModalTitle">
+      <div class="modal-heading"><div><span class="panel-kicker" id="clientModalKicker">NOVA FICHA</span><h2 id="clientModalTitle">Registar cliente</h2></div><button class="modal-close" type="button" data-close="clientModal" aria-label="Fechar">×</button></div>
+      <form id="clientForm" class="modal-form">
+        <input id="clientId" type="hidden">
+        <label>Nome <span class="required">*</span><input id="clientName" name="name" maxlength="100" autocomplete="name" required placeholder="Nome do cliente"></label>
+        <label>Telemóvel<input id="clientPhone" name="phone" type="tel" maxlength="30" autocomplete="tel" placeholder="+351 ..."></label>
+        <label>N.º cliente<input id="clientNumber" name="number" maxlength="30" placeholder="Atribuído automaticamente"></label>
+        <label>Estado da relação<select id="clientStatus"><option value="active">Cliente ativo</option><option value="interested">Interessado</option><option value="inactive">Inativo</option></select></label>
+        <label>Origem do contacto<input id="clientSource" name="source" maxlength="80" placeholder="Opcional — por exemplo, Instagram ou recomendação"></label>
+        <label>Notas<textarea id="clientNotes" name="notes" rows="3" maxlength="1500" placeholder="Informação útil para acompanhares o cliente"></textarea></label>
+        <div class="modal-actions"><button class="crm-button crm-button-outline" type="button" data-close="clientModal">Cancelar</button><button class="crm-button crm-button-gold" type="submit">Guardar cliente <span>→</span></button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop hidden" id="visitModal" role="presentation">
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="visitModalTitle">
+      <div class="modal-heading"><div><span class="panel-kicker">HISTÓRICO DO CLIENTE</span><h2 id="visitModalTitle">Registar visita</h2></div><button class="modal-close" type="button" data-close="visitModal" aria-label="Fechar">×</button></div>
+      <form id="visitForm" class="modal-form">
+        <input id="visitId" type="hidden">
+        <label>Cliente <span class="required">*</span><select id="visitClient" required><option value="">Seleciona um cliente</option></select></label>
+        <label>Data da visita <span class="required">*</span><input id="visitDate" type="date" required></label>
+        <label>Notas<textarea id="visitNotes" rows="3" maxlength="1000" placeholder="Nota opcional sobre a visita"></textarea></label>
+        <div class="modal-actions"><button class="crm-button crm-button-outline" type="button" data-close="visitModal">Cancelar</button><button class="crm-button crm-button-gold" type="submit">Guardar visita <span>→</span></button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop hidden" id="followUpModal" role="presentation">
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="followUpModalTitle">
+      <div class="modal-heading"><div><span class="panel-kicker">AGENDA EXCLUSIVE</span><h2 id="followUpModalTitle">Novo acompanhamento</h2></div><button class="modal-close" type="button" data-close="followUpModal" aria-label="Fechar">×</button></div>
+      <form id="followUpForm" class="modal-form">
+        <input id="followUpId" type="hidden">
+        <label>Cliente <span class="required">*</span><select id="followUpClient" required><option value="">Seleciona um cliente</option></select></label>
+        <label>Data <span class="required">*</span><input id="followUpDate" type="date" required></label>
+        <label>Tipo de acompanhamento<select id="followUpType"><option value="contact">Contacto</option><option value="first_visit">Primeira visita</option><option value="renewal">Renovação</option><option value="other">Outro</option></select></label>
+        <label>Nota<textarea id="followUpNotes" rows="3" maxlength="1000" placeholder="Lembrete opcional"></textarea></label>
+        <div class="modal-actions"><button class="crm-button crm-button-outline" type="button" data-close="followUpModal">Cancelar</button><button class="crm-button crm-button-gold" type="submit">Guardar acompanhamento <span>→</span></button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop hidden" id="saleModal" role="presentation">
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="saleModalTitle">
+      <div class="modal-heading"><div><span class="panel-kicker">REGISTO DE VENDA</span><h2 id="saleModalTitle">Registar venda</h2></div><button class="modal-close" type="button" data-close="saleModal" aria-label="Fechar">×</button></div>
+      <form id="saleForm" class="modal-form">
+        <input id="saleId" type="hidden">
+        <label>Cliente <span class="required">*</span><select id="saleClient" required><option value="">Seleciona um cliente</option></select></label>
+        <label>Sessão, pacote ou produto <span class="required">*</span><input id="saleDescription" maxlength="120" required placeholder="Descrição definida pelo negócio"></label>
+        <div class="form-two-columns"><label>Data <span class="required">*</span><input id="saleDate" type="date" required></label><label>Valor (€)<input id="saleAmount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Opcional"></label></div>
+        <div class="form-two-columns"><label>Estado<select id="saleStatus"><option value="pending">Pendente</option><option value="paid">Paga</option><option value="cancelled">Cancelada</option></select></label><label>Data de renovação<input id="saleRenewalDate" type="date"></label></div>
+        <label>Notas<textarea id="saleNotes" rows="2" maxlength="800" placeholder="Nota opcional sobre esta venda"></textarea></label>
+        <div class="modal-actions"><button class="crm-button crm-button-outline" type="button" data-close="saleModal">Cancelar</button><button class="crm-button crm-button-gold" type="submit">Guardar venda <span>→</span></button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop hidden" id="detailModal" role="presentation">
+    <section class="modal-card detail-modal" role="dialog" aria-modal="true" aria-labelledby="detailName">
+      <div id="detailBody"></div>
+    </section>
+  </div>
+
+  <input id="importFile" type="file" class="visually-hidden" accept=".xlsx,.xls,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/gestao/identity.bundle.js" defer></script>
+  <script src="/gestao/crm.js" defer></script>
+</body>
+</html>

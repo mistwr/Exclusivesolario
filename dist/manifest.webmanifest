@@ -1,0 +1,19 @@
+{
+  "name": "Exclusive Solario",
+  "short_name": "Exclusive",
+  "description": "Exclusive Solario — o teu momento, ao teu ritmo.",
+  "lang": "pt-PT",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#110b18",
+  "theme_color": "#150e20",
+  "icons": [
+    {
+      "src": "/assets/mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[dev]
+  publish = "dist"
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/crm"
+  to = "/.netlify/functions/crm"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/leads"
+  to = "/.netlify/functions/leads"
+  status = 200
+  force = true
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-store, private, max-age=0"
+    X-Content-Type-Options = "nosniff"
+
+[[headers]]
+  for = "/gestao/*"
+  [headers.values]
+    Cache-Control = "no-store, private, max-age=0"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
