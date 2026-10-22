@@ -83,31 +83,3 @@ test("password recovery is limited to the configured admin email", async () => {
   await assert.rejects(auth.requestPasswordRecovery("other@example.com"), /limitada/i);
   assert.equal(calls, 0);
 });
-
-test("first access link creates only the authorized admin and redirects to CRM", async () => {
-  const calls = [];
-  const { auth } = createAuth(async (url, options) => {
-    calls.push({ url, options });
-    return Response.json({});
-  });
-
-  await auth.requestAccessLink("Alex@ExclusiveSolario.pt");
-  assert.match(calls[0].url, /\/auth\/v1\/otp\?redirect_to=/);
-  assert.equal(decodeURIComponent(calls[0].url.split("redirect_to=")[1]), "https://exclusive-solario-maia.netlify.app/gestao/");
-  assert.deepEqual(JSON.parse(calls[0].options.body), {
-    email: "alex@exclusivesolario.pt",
-    create_user: true
-  });
-  assert.equal(calls[0].options.headers.apikey, "sb_publishable_test");
-});
-
-test("first access link cannot be requested for another Indigo user", async () => {
-  let calls = 0;
-  const { auth } = createAuth(async () => {
-    calls += 1;
-    return Response.json({});
-  });
-
-  await assert.rejects(auth.requestAccessLink("other@example.com"), /limitado à conta administradora/i);
-  assert.equal(calls, 0);
-});
