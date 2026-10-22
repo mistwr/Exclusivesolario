@@ -894,26 +894,6 @@
       }
     });
 
-    $("#accessLinkButton").addEventListener("click", async function () {
-      showAuthMessage("");
-      var email = $("#loginEmail").value.trim();
-      if (!email) {
-        showAuthMessage("Escreve primeiro o email autorizado da gestão.");
-        $("#loginEmail").focus();
-        return;
-      }
-      var button = $("#accessLinkButton");
-      button.disabled = true;
-      try {
-        await window.solarioIdentity.requestAccessLink(email);
-        showAuthMessage("Se o email corresponder à conta autorizada, enviámos um link de acesso. Verifica a caixa de entrada e o spam.");
-      } catch (error) {
-        showAuthMessage(error.message || "Não foi possível enviar o link de acesso agora.");
-      } finally {
-        button.disabled = false;
-      }
-    });
-
     $("#recoveryForm").addEventListener("submit", async function (event) {
       event.preventDefault();
       showAuthMessage("");

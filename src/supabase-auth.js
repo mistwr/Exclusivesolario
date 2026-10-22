@@ -165,16 +165,6 @@
     });
   }
 
-  async function requestAccessLink(email) {
-    var target = String(email || "").trim().toLowerCase();
-    if (target !== adminEmail) throw new Error("O link de acesso está limitado à conta administradora.");
-    var redirect = window.location.origin + "/gestao/";
-    await request("/auth/v1/otp?redirect_to=" + encodeURIComponent(redirect), {
-      method: "POST",
-      body: { email: target, create_user: true }
-    });
-  }
-
   async function updateUser(changes) {
     var token = await getAccessToken();
     var data = await request("/auth/v1/user", {
@@ -218,7 +208,6 @@
     login: login,
     logout: logout,
     onAuthChange: onAuthChange,
-    requestAccessLink: requestAccessLink,
     requestPasswordRecovery: requestPasswordRecovery,
     updateUser: updateUser
   };
