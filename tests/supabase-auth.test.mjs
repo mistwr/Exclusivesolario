@@ -92,7 +92,7 @@ test("first access link creates only the authorized admin and redirects to CRM",
   });
 
   await auth.requestAccessLink("Alex@ExclusiveSolario.pt");
-  assert.match(calls[0].url, /\\/auth\\/v1\\/otp\\?redirect_to=/);
+  assert.match(calls[0].url, /\/auth\/v1\/otp\?redirect_to=/);
   assert.equal(decodeURIComponent(calls[0].url.split("redirect_to=")[1]), "https://exclusive-solario-maia.netlify.app/gestao/");
   assert.deepEqual(JSON.parse(calls[0].options.body), {
     email: "alex@exclusivesolario.pt",
